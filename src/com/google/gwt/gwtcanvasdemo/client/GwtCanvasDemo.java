@@ -22,6 +22,6 @@ import com.google.gwt.user.client.ui.RootPanel;
 
 public class GwtCanvasDemo implements EntryPoint {
   public void onModuleLoad() {
-    RootPanel.get().add(new Label("test3"));
+    RootPanel.get("canvasholder").add(new Label("test4"));
   }
 }

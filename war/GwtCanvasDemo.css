@@ -11,3 +11,13 @@ h1 {
   margin: 10px 0px 10px;
   text-align: center;
 }
+
+#source {
+  font-size: 1em;
+  color: #777777;
+  text-align: center;
+}
+
+#source a {
+  text-decoration: none;
+}
