@@ -23,64 +23,63 @@ import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.RootPanel;
 
-import java.util.ArrayList;
-
 public class LogoGroup {
-  Vector mouse;
-  Vector canvasCenter;
-  Image image = new Image("gwtlogo40_40.png");
-  ArrayList<Logo> logos;
+  final double width;
+  final double height;
+  final int numLogos;
+  final double radius;
+  Image logoImg;
+  Logo[] logos;
   boolean imageLoaded;
-  int numLogos = 18;
-  double logoRadius = 165;
-  double imageWidth = 40;
-  double imageHeight = 40;
+  
   double k;
   
-  public LogoGroup(final double centerx, final double centery) {
-    mouse = new Vector();
-    canvasCenter = new Vector();
-    
+  public LogoGroup(double width, double height, int numLogos, double radius) {
+    this.width = width;
+    this.height = height;
+    this.numLogos = numLogos;
+    this.radius = radius;
+
     // init logos array
-    logos = new ArrayList<Logo>(numLogos);
+    logos = new Logo[numLogos];
     
     // init image
-    imageLoaded = false;
-    image.addLoadHandler(new LoadHandler() {
+    logoImg = new Image("gwtlogo40_40.png");
+    logoImg.addLoadHandler(new LoadHandler() {
       public void onLoad(LoadEvent event) {
         imageLoaded = true;
         // once image is loaded, init logo objects
-        ImageElement imageElement = (ImageElement) image.getElement().cast();
-        for (int i=0; i<numLogos; i++) {
-          Logo logo = new Logo(imageElement, imageWidth, imageHeight);
-          logo.pos.x = centerx;
-          logo.pos.y = centery;
-          logos.add(logo);
+        ImageElement imageElement = (ImageElement) logoImg.getElement().cast();
+        for (int i = logos.length - 1; i >= 0; i--) {
+          Logo logo = new Logo(imageElement);
+          logo.pos.x = LogoGroup.this.width / 2;
+          logo.pos.y = LogoGroup.this.height / 2;
+          logos[i] = logo;
         }
       }
     });
-    image.setVisible(false);
-    RootPanel.get().add(image); // image must be on page to fire load
+    logoImg.setVisible(false);
+    RootPanel.get().add(logoImg); // image must be on page to fire load
   }
   
-  public void update(double centerx, double centery) {
+  public void update(double mouseX, double mouseY) {
     if (!imageLoaded) {
       return;
     }
     
     k = (k + Math.PI/2.0* 0.009);
     
-    for (int i=0; i<numLogos; i++) {
-      Logo logo = logos.get(i);
+    for (int i = numLogos - 1; i >= 0; i--) {
+      Logo logo = logos[i];
       double logoPerTPi = 2 * Math.PI * i / numLogos;
-      Vector goal = new Vector(centerx + logoRadius * Math.cos(k + logoPerTPi), 
-          centery + logoRadius * Math.sin(k + logoPerTPi));
+      Vector goal = new Vector(width / 2 + radius * Math.cos(k + logoPerTPi), 
+          height / 2 + radius * Math.sin(k + logoPerTPi));
       logo.goal.set(goal);
       logo.rot = k + logoPerTPi + Math.PI / 2.0;
       
-      Vector d = Vector.sub(mouse, logo.pos);
-      double dist = d.mag();
-      if (dist < 50) {
+      Vector d = new Vector(mouseX, mouseY);
+      d.sub(logo.pos);
+      if (d.magSquared() < 50*50) {
         logo.goal = Vector.sub(logo.pos, d);
       }
       
@@ -93,9 +92,8 @@ public class LogoGroup {
       return;
     }
     
-    for (int i=0; i<numLogos; i++) {
-      Logo logo = logos.get(i);
-      logo.draw(context);
+    for (int i = numLogos - 1; i >= 0; i--) {
+      logos[i].draw(context);
     }
   }
 }

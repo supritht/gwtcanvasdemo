@@ -63,6 +63,7 @@ public class Ball extends SpringObject {
     context.setFillStyle(color);
     context.beginPath();
     context.arc(pos.x, pos.y, radius, 0, Math.PI * 2.0, true);
+    context.closePath();
     context.fill();
   }
 }

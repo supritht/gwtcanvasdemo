@@ -18,20 +18,35 @@ package com.google.gwt.gwtcanvasdemo.client;
 
 import com.google.gwt.canvas.dom.client.CanvasPixelArray;
 import com.google.gwt.canvas.dom.client.Context2d;
+import com.google.gwt.canvas.dom.client.CssColor;
+import com.google.gwt.canvas.dom.client.FillStrokeStyle;
 import com.google.gwt.canvas.dom.client.ImageData;
 import com.google.gwt.core.client.GWT;
 
 import java.util.ArrayList;
 
 public class Lens {
-  final int radius = 35;
-  final Vector pos = new Vector(320, 150);
-  final int mag = 15;
-  int[][] lensArray;
-  Vector vel = new Vector(1, 1);
+  final int radius;
+  final int mag;
+  final int width; // maximum bounds of canvases
+  final int height;
   
-  public Lens() {
-    // calculate lensArray
+  Vector pos;
+  Vector vel;
+  int[][] lensArray;
+  
+  // color of lens outline
+  final FillStrokeStyle strokeStyle = CssColor.make("#333300");
+  
+  public Lens(int radius, int mag, int w, int h, Vector initPos, Vector vel) {
+    this.radius = radius;
+    this.mag = mag;
+    this.width = w;
+    this.height = h;
+    this.pos = initPos;
+    this.vel = vel;
+    
+    // calculate lens array
     ArrayList<int[]> calcLensArray = new ArrayList<int[]>(0);
     int a, b;
     double s = Math.sqrt(radius*radius - mag*mag);
@@ -47,7 +62,7 @@ public class Lens {
         }
       }
     }
-    // store in an int array
+    // store lens array in an int array
     lensArray = new int[calcLensArray.size()][2];
     for(int i = 0; i < calcLensArray.size(); i++) {
       int[] fromTo = calcLensArray.get(i);
@@ -56,7 +71,7 @@ public class Lens {
     }
   }
   
-  public void update(int width, int height) {
+  public void update() {
     if (pos.x + radius + vel.x > width || pos.x - radius + vel.x < 0) {
       vel.x *= -1;
     }
@@ -71,11 +86,12 @@ public class Lens {
   public void draw(Context2d back, Context2d front) {
     front.drawImage(back.getCanvas(), 0, 0);
     
-    if (GWT.isScript()) {
-      // do lens effect
-      ImageData frontData = front.getImageData(pos.x - radius, pos.y - radius, 2 * radius, 2 * radius);
+    if (!GWT.isScript()) {
+      // in devmode this effect is slow so we disable it here
+    } else {
+      ImageData frontData = front.getImageData((int)(pos.x - radius), (int)(pos.y - radius), 2 * radius, 2 * radius);
       CanvasPixelArray frontPixels = frontData.getData();
-      ImageData backData = back.getImageData(pos.x - radius, pos.y - radius, 2 * radius, 2 * radius);
+      ImageData backData = back.getImageData((int)(pos.x - radius), (int)(pos.y - radius), 2 * radius, 2 * radius);
       CanvasPixelArray backPixels = backData.getData();
       int srcIdx, dstIdx;
       for(int i = lensArray.length - 1; i >= 0 ; i--) {
@@ -85,14 +101,13 @@ public class Lens {
         frontPixels.set(dstIdx + 1, backPixels.get(srcIdx + 1));
         frontPixels.set(dstIdx + 2, backPixels.get(srcIdx + 2));
       }
-      front.putImageData(frontData, pos.x - radius, pos.y - radius);
-    } else {
-      // in devmode, don't do lens effect
+      front.putImageData(frontData, (int)(pos.x - radius), (int)(pos.y - radius));
     }
     
-    front.setStrokeStyle("#333300");
+    front.setStrokeStyle(strokeStyle);
     front.beginPath();
-    front.arc(pos.x, pos.y, radius, 0, Math.PI * 2.0, true);
+    front.arc(pos.x, pos.y, radius, 0, Math.PI * 2, true);
+    front.closePath();
     front.stroke();
   }
 }
