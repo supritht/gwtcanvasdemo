@@ -41,6 +41,15 @@ public class Vector {
     add(v.x, v.y);
   }
   
+  public void sub(Vector v) {
+    sub(v.x, v.y);
+  }
+  
+  public void sub(double x, double y) {
+    this.x -= x;
+    this.y -= y;
+  }
+  
   public void mult(double x, double y) {
     this.x *= x;
     this.y *= y;
@@ -54,12 +63,16 @@ public class Vector {
     mult(c, c);
   }
   
-  public float mag() {
+  public double mag() {
     if (x == 0 && y == 0) {
       return 0;
     } else {
-      return (float) Math.sqrt(x * x + y * y);
+      return Math.sqrt(x * x + y * y);
     }
+  }
+  
+  public double magSquared() {
+    return x * x + y * y;
   }
   
   public void set(Vector v) {

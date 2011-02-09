@@ -21,14 +21,11 @@ import com.google.gwt.dom.client.ImageElement;
 
 public class Logo extends SpringObject {
   ImageElement image;
-  double width, height;
   double rot;
 
-  Logo(ImageElement image, double imageWidth, double imageHeight) {
+  Logo(ImageElement image) {
     super(new Vector(0,0));
     this.image = image;
-    this.width = imageWidth;
-    this.height = imageHeight;
     this.rot = 0;
   }
   
@@ -36,7 +33,7 @@ public class Logo extends SpringObject {
     context.save();
     context.translate(this.pos.x, this.pos.y);
     context.rotate(rot);
-    context.drawImage(image, 0, 0, width, height);
+    context.drawImage(image, 0, 0);
     context.restore();
   }
 }

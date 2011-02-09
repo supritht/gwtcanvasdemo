@@ -29,8 +29,8 @@ public class SpringObject {
   
   public void update() {
     Vector d = Vector.sub(goal, pos);
-    Vector a = Vector.mult(d, springStrength);
-    vel.add(a);
+    d.mult(springStrength);
+    vel.add(d);
     vel.mult(friction);
     pos.add(vel);
   }
